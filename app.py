@@ -1,7 +1,9 @@
 from flask import Flask, jsonify
+from flask_cors import CORS  # Import CORS
 import scrap  # Import your scraping logic from scrap.py
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 @app.route('/api/data', methods=['GET'])
 def get_data():
