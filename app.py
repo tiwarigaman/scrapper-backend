@@ -1,30 +1,18 @@
 from flask import Flask, jsonify
-import requests
-from bs4 import BeautifulSoup
+import scrap  # Import your scraping logic from scrap.py
 
 app = Flask(__name__)
 
-# Your scraping logic goes here
-def scrape_data():
-    url = "https://www.amazon.in"  # Replace with your target URL
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, "html.parser")
-
-    # Example data extraction (modify as per your requirement)
-    data = []
-    for item in soup.find_all("div", class_="product"):
-        title = item.find("h2").text
-        price = item.find("span", class_="price").text
-        link = item.find("a")["href"]
-        data.append({"title": title, "price": price, "link": link})
-
-    return data
-
-# API endpoint to return scraped data
 @app.route('/api/data', methods=['GET'])
 def get_data():
-    data = scrape_data()
-    return jsonify(data)
+    # Extract data using your scraping logic
+    headings, links = scrap.get_scraped_data()
+
+    # Return the data as JSON
+    return jsonify({
+        "headings": [heading.text for heading in headings],
+        "links": [link.get('href') for link in links if link.get('href')]
+    })
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
