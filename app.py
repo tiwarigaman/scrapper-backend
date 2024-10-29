@@ -1,19 +1,25 @@
-from flask import Flask, jsonify
-from flask_cors import CORS  # Import CORS
-import scrap  # Import your scraping logic from scrap.py
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import scrap
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-@app.route('/api/data', methods=['GET'])
-def get_data():
-    # Extract data using your scraping logic
-    headings, links = scrap.get_scraped_data()
+@app.route('/api/scrape', methods=['POST'])
+def scrape_data():
+    data = request.get_json()
+    url = data.get('url')
 
-    # Return the data as JSON
+    if not url:
+        return jsonify({"error": "No URL provided"}), 400
+
+    # Scrape data based on the input URL
+    headings, links, images = scrap.get_scraped_data(url)
+
     return jsonify({
         "headings": [heading.text for heading in headings],
-        "links": [link.get('href') for link in links if link.get('href')]
+        "links": [link.get('href') for link in links if link.get('href')],
+        "images": [img.get('src') for img in images if img.get('src')]
     })
 
 if __name__ == '__main__':
